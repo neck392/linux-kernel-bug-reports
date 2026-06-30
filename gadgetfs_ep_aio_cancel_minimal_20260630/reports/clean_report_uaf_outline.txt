@@ -1,0 +1,61 @@
+TITLE: KASAN: slab-use-after-free Read in ep_aio_cancel
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): []
+MAINTAINERS (CC): []
+
+systemd[1]: systemd-sysusers.service - Create System Users was skipped because no trigger condition checks were met.
+systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+systemd[1]: Finished systemd-random-seed.service - Load/Save OS Random Seed.
+systemd[1]: Started systemd-journald.service - Journal Service.
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_aio_cancel+0x25/0x90 drivers/usb/gadget/legacy/inode.c:455
+Read of size 8 at addr ffff8881064c2088 by task repro_uaf_50/354
+
+CPU: 2 UID: 1000 PID: 354 Comm: repro_uaf_50 Not tainted 7.2.0-rc1 #2 PREEMPT(lazy) 
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x7b/0xa0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xce/0x100 mm/kasan/report.c:595
+ ep_aio_cancel+0x25/0x90 drivers/usb/gadget/legacy/inode.c:455
+ __do_sys_io_cancel fs/aio.c:2250 [inline]
+ __se_sys_io_cancel fs/aio.c:2229 [inline]
+ __x64_sys_io_cancel+0x104/0x260 fs/aio.c:2229
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xf9/0x540 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fcf2380525d
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 8b bb 0d 00 f7 d8 64 89 01 48
+RSP: 002b:00007fcf22ec7dc8 EFLAGS: 00000246 ORIG_RAX: 00000000000000d2
+RAX: ffffffffffffffda RBX: 00007fcf22ec7df0 RCX: 00007fcf2380525d
+RDX: 00007fcf22ec7df0 RSI: 000055d095c2d100 RDI: 00007fcf236ca000
+RBP: 0000000000000000 R08: 00007fcf238f60e8 R09: 00007fcf22ec86c0
+R10: 0001d91512000000 R11: 0000000000000246 R12: 00007fcf22ec7de0
+R13: 000055d095c2d100 R14: 0000000000000010 R15: 00007ffcc559eb30
+ </TASK>
+
+Allocated by task 352:
+
+Freed by task 355:
+
+The buggy address belongs to the object at ffff8881064c2080
+ which belongs to the cache kmalloc-128 of size 128
+The buggy address is located 8 bytes inside of
+ freed 128-byte region [ffff8881064c2080, ffff8881064c2100)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff8881064c1f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881064c2000: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8881064c2080: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8881064c2100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881064c2180: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
