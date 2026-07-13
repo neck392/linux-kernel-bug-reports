@@ -1,0 +1,155 @@
+---
+ drivers/usb/gadget/legacy/inode.c |   80 +++++++++++++++++++++++++++++---------
+ 1 file changed, 63 insertions(+), 17 deletions(-)
+
+Index: usb-devel/drivers/usb/gadget/legacy/inode.c
+===================================================================
+--- usb-devel.orig/drivers/usb/gadget/legacy/inode.c
++++ usb-devel/drivers/usb/gadget/legacy/inode.c
+@@ -236,6 +236,8 @@ static void put_ep (struct ep_data *data
+ static const char *CHIP;
+ static DEFINE_MUTEX(sb_mutex);		/* Serialize superblock operations */
+ 
++static DEFINE_SPINLOCK(aio_lock);	/* Protect aio cancellation info */
++
+ /*----------------------------------------------------------------------*/
+ 
+ /* NOTE:  don't use dev_printk calls before binding to the gadget
+@@ -433,6 +435,13 @@ static long ep_ioctl(struct file *fd, un
+ 
+ /* ASYNCHRONOUS ENDPOINT I/O OPERATIONS (bulk/intr/iso) */
+ 
++enum aio_req_state {
++	AIO_REQ_RUNNING,
++	AIO_REQ_CANCELLING,
++	AIO_REQ_CANCELLED,
++	AIO_REQ_COMPLETED,
++};
++
+ struct kiocb_priv {
+ 	struct usb_request	*req;
+ 	struct ep_data		*epdata;
+@@ -443,24 +452,46 @@ struct kiocb_priv {
+ 	struct iov_iter		to;
+ 	const void		*to_free;
+ 	unsigned		actual;
++	enum aio_req_state	aio_state;
+ };
+ 
+ static int ep_aio_cancel(struct kiocb *iocb)
+ {
+-	struct kiocb_priv	*priv = iocb->private;
++	struct kiocb_priv	*priv;
+ 	struct ep_data		*epdata;
+-	int			value;
++	struct usb_ep		*ep;
++	struct dev_data		*dev;
++	int			value = -EINVAL;
++
++	spin_lock_irq(&aio_lock);
++	priv = iocb->private;
++	if (!priv || priv->aio_state != AIO_REQ_RUNNING)
++		goto Done;	/* Already completed or cancelled */
+ 
+-	local_irq_disable();
++	priv->aio_state = AIO_REQ_CANCELLING;
+ 	epdata = priv->epdata;
+-	// spin_lock(&epdata->dev->lock);
+-	if (likely(epdata && epdata->ep && priv->req))
+-		value = usb_ep_dequeue (epdata->ep, priv->req);
+-	else
+-		value = -EINVAL;
+-	// spin_unlock(&epdata->dev->lock);
+-	local_irq_enable();
++	ep = epdata->ep;
++	dev = epdata->dev;
++	spin_lock(&dev->lock);
++	++dev->udc_usage;
++	spin_unlock(&dev->lock);
++	spin_unlock_irq(&aio_lock);
++
++	value = usb_ep_dequeue(ep, priv->req);
++
++	spin_lock_irq(&aio_lock);
++	if (priv->aio_state == AIO_REQ_CANCELLING) {
++		priv->aio_state = AIO_REQ_CANCELLED;
++	} else {		/* Must be AIO_REQ_COMPLETED */
++		usb_ep_free_request(ep, priv->req);
++		kfree(priv);
++	}
++	spin_lock(&dev->lock);
++	--dev->udc_usage;
++	spin_unlock(&dev->lock);
+ 
++ Done:
++	spin_unlock_irq(&aio_lock);
+ 	return value;
+ }
+ 
+@@ -482,7 +513,13 @@ static void ep_user_copy_worker(struct w
+ 
+ 	kfree(priv->buf);
+ 	kfree(priv->to_free);
+-	kfree(priv);
++
++	spin_lock_irq(&aio_lock);
++	if (priv->aio_state == AIO_REQ_CANCELLING)
++		priv->aio_state = AIO_REQ_COMPLETED;
++	else
++		kfree(priv);
++	spin_unlock_irq(&aio_lock);
+ }
+ 
+ static void ep_aio_complete(struct usb_ep *ep, struct usb_request *req)
+@@ -490,11 +527,15 @@ static void ep_aio_complete(struct usb_e
+ 	struct kiocb		*iocb = req->context;
+ 	struct kiocb_priv	*priv = iocb->private;
+ 	struct ep_data		*epdata = priv->epdata;
++	bool			cancelling;
++
++	/* lock against cancellation */
++	spin_lock(&aio_lock);
++	cancelling = (priv->aio_state == AIO_REQ_CANCELLING);
+ 
+-	/* lock against disconnect (and ideally, cancel) */
++	/* lock against unbind */
+ 	spin_lock(&epdata->dev->lock);
+-	priv->req = NULL;
+-	priv->epdata = NULL;
++	iocb->private = NULL;		/* Prevent future cancellation */
+ 
+ 	/* if this was a write or a read returning no data then we
+ 	 * don't need to copy anything to userspace, so we can
+@@ -503,8 +544,10 @@ static void ep_aio_complete(struct usb_e
+ 	if (priv->to_free == NULL || unlikely(req->actual == 0)) {
+ 		kfree(req->buf);
+ 		kfree(priv->to_free);
+-		kfree(priv);
+-		iocb->private = NULL;
++		if (cancelling)
++			priv->aio_state = AIO_REQ_COMPLETED;
++		else
++			kfree(priv);
+ 		iocb->ki_complete(iocb,
+ 				req->actual ? req->actual : (long)req->status);
+ 	} else {
+@@ -519,8 +562,10 @@ static void ep_aio_complete(struct usb_e
+ 		schedule_work(&priv->work);
+ 	}
+ 
+-	usb_ep_free_request(ep, req);
++	if (!cancelling)
++		usb_ep_free_request(ep, req);
+ 	spin_unlock(&epdata->dev->lock);
++	spin_unlock(&aio_lock);
+ 	put_ep(epdata);
+ }
+ 
+@@ -541,6 +586,7 @@ static ssize_t ep_aio(struct kiocb *iocb
+ 	priv->epdata = epdata;
+ 	priv->actual = 0;
+ 	priv->mm = current->mm; /* mm teardown waits for iocbs in exit_aio() */
++	priv->aio_state = AIO_REQ_RUNNING;
+ 
+ 	/* each kiocb is coupled to one usb_request, but we can't
+ 	 * allocate or submit those if the host disconnected.

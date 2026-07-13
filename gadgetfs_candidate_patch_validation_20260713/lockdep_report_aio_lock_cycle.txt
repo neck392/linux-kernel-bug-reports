@@ -1,0 +1,97 @@
+[   31.500870] WARNING: possible circular locking dependency detected
+[   31.501855] 7.2.0-rc1-gdc59e4fea9d8-dirty #1 Not tainted
+[   31.502606] ------------------------------------------------------
+[   31.503475] gfix/392 is trying to acquire lock:
+[   31.504117] ffffffff8df53758 (aio_lock){....}-{3:3}, at: ep_aio_cancel+0x22/0x300
+[   31.505298] 
+[   31.505298] but task is already holding lock:
+[   31.506129] ffff88810dea8198 (&ctx->ctx_lock){....}-{3:3}, at: __x64_sys_io_cancel+0xca/0x330
+[   31.508201] 
+[   31.508201] which lock already depends on the new lock.
+[   31.508201] 
+[   31.510403] 
+[   31.510403] the existing dependency chain (in reverse order) is:
+[   31.512141] 
+[   31.512141] -> #2 (&ctx->ctx_lock){....}-{3:3}:
+[   31.512998]        lock_acquire+0x178/0x2f0
+[   31.513662]        _raw_spin_lock_irqsave+0x37/0x60
+[   31.514364]        aio_complete_rw+0x93/0x650
+[   31.515008]        ep_aio_complete+0x490/0x610
+[   31.515693]        dummy_disable+0x205/0x320
+[   31.516328]        usb_ep_disable+0x9c/0x2a0
+[   31.516989]        destroy_ep_files+0x273/0x380
+[   31.517698]        gadgetfs_unbind+0x11c/0x240
+[   31.518363]        gadget_unbind_driver+0x1ef/0x460
+[   31.519083]        device_remove+0xcb/0x170
+[   31.519718]        device_release_driver_internal+0x418/0x5f0
+[   31.520558]        driver_detach+0xcd/0x1a0
+[   31.521175]        bus_remove_driver+0x11d/0x1d0
+[   31.521875]        driver_unregister+0x76/0xb0
+[   31.522539]        usb_gadget_unregister_driver+0x49/0x70
+[   31.523334]        dev_release+0x11f/0x190
+[   31.523945]        __fput+0x39a/0xa60
+[   31.524508]        fput_close_sync+0xfa/0x1f0
+[   31.525159]        __x64_sys_close+0x87/0xf0
+[   31.525816]        do_syscall_64+0x10c/0x640
+[   31.526450]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.527379] 
+[   31.527379] -> #1 (&dev->lock#2){..-.}-{3:3}:
+[   31.528689]        lock_acquire+0x178/0x2f0
+[   31.529437]        _raw_spin_lock+0x2b/0x40
+[   31.530211]        ep_aio_complete+0x104/0x610
+[   31.530970]        dummy_disable+0x205/0x320
+[   31.531703]        usb_ep_disable+0x9c/0x2a0
+[   31.532450]        destroy_ep_files+0x273/0x380
+[   31.533374]        gadgetfs_unbind+0x11c/0x240
+[   31.534176]        gadget_unbind_driver+0x1ef/0x460
+[   31.535022]        device_remove+0xcb/0x170
+[   31.535769]        device_release_driver_internal+0x418/0x5f0
+[   31.536908]        driver_detach+0xcd/0x1a0
+[   31.537621]        bus_remove_driver+0x11d/0x1d0
+[   31.538400]        driver_unregister+0x76/0xb0
+[   31.539134]        usb_gadget_unregister_driver+0x49/0x70
+[   31.540020]        dev_release+0x11f/0x190
+[   31.540696]        __fput+0x39a/0xa60
+[   31.541311]        fput_close_sync+0xfa/0x1f0
+[   31.542056]        __x64_sys_close+0x87/0xf0
+[   31.542766]        do_syscall_64+0x10c/0x640
+[   31.543475]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.544403] 
+[   31.544403] -> #0 (aio_lock){....}-{3:3}:
+[   31.545322]        check_prev_add+0xeb/0xe80
+[   31.546113]        __lock_acquire+0x1375/0x1a60
+[   31.546871]        lock_acquire+0x178/0x2f0
+[   31.547581]        _raw_spin_lock_irq+0x33/0x50
+[   31.548333]        ep_aio_cancel+0x22/0x300
+[   31.548952]        __x64_sys_io_cancel+0x198/0x330
+[   31.549700]        do_syscall_64+0x10c/0x640
+[   31.550347]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.551109] 
+[   31.551109] other info that might help us debug this:
+[   31.551109] 
+[   31.552196] Chain exists of:
+[   31.552196]   aio_lock --> &dev->lock#2 --> &ctx->ctx_lock
+[   31.552196] 
+[   31.553517]  Possible unsafe locking scenario:
+[   31.553517] 
+[   31.554379]        CPU0                    CPU1
+[   31.555015]        ----                    ----
+[   31.555661]   lock(&ctx->ctx_lock);
+[   31.556166]                                lock(&dev->lock#2);
+[   31.556973]                                lock(&ctx->ctx_lock);
+[   31.557821]   lock(aio_lock);
+[   31.558256] 
+[   31.558256]  *** DEADLOCK ***
+[   31.558256] 
+[   31.559062] 1 lock held by gfix/392:
+[   31.559579]  #0: ffff88810dea8198 (&ctx->ctx_lock){....}-{3:3}, at: __x64_sys_io_cancel+0xca/0x330
+[   31.560808] 
+[   31.560808] stack backtrace:
+[   31.561644] CPU: 2 UID: 1000 PID: 392 Comm: gfix Not tainted 7.2.0-rc1-gdc59e4fea9d8-dirty #1 PREEMPT(lazy) 
+[   31.561656] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   31.561660] Call Trace:
+[   31.561666]  <TASK>
+[   31.561670]  dump_stack_lvl+0x93/0xd0
+[   31.561688]  print_circular_bug+0x2ca/0x400
+[   31.561698]  check_noncircular+0x146/0x160
+[   
