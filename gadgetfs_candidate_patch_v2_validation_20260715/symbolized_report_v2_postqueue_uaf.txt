@@ -1,0 +1,149 @@
+TITLE: KASAN: slab-use-after-free Write in kiocb_set_cancel_fn
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [bcrl@kvack.org brauner@kernel.org linux-aio@kvack.org linux-fsdevel@vger.kernel.org viro@zeniv.linux.org.uk]
+MAINTAINERS (CC): [jack@suse.cz linux-kernel@vger.kernel.org]
+
+BUG: KASAN: slab-use-after-free in __list_add include/linux/list.h:164 [inline]
+BUG: KASAN: slab-use-after-free in list_add_tail include/linux/list.h:191 [inline]
+BUG: KASAN: slab-use-after-free in kiocb_set_cancel_fn fs/aio.c:658 [inline]
+BUG: KASAN: slab-use-after-free in kiocb_set_cancel_fn+0x1c3/0x230 fs/aio.c:637
+Write of size 8 at addr ffff88810179c0d0 by task gfix/395
+
+CPU: 0 UID: 1000 PID: 395 Comm: gfix Not tainted 7.2.0-rc1-gdc59e4fea9d8-dirty #1 PREEMPT(full) 
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x7b/0xa0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xce/0x100 mm/kasan/report.c:595
+ __list_add include/linux/list.h:164 [inline]
+ list_add_tail include/linux/list.h:191 [inline]
+ kiocb_set_cancel_fn fs/aio.c:658 [inline]
+ kiocb_set_cancel_fn+0x1c3/0x230 fs/aio.c:637
+ ep_aio+0x337/0x500 drivers/usb/gadget/legacy/inode.c:620
+ ep_write_iter+0x1ea/0x990 drivers/usb/gadget/legacy/inode.c:740
+ aio_write+0x375/0x720 fs/aio.c:1687
+ __io_submit_one fs/aio.c:2059 [inline]
+ io_submit_one+0xbd6/0x1b60 fs/aio.c:2106
+ __do_sys_io_submit fs/aio.c:2165 [inline]
+ __se_sys_io_submit fs/aio.c:2135 [inline]
+ __x64_sys_io_submit+0x185/0x3a0 fs/aio.c:2135
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xf9/0x540 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f7f0872f25d
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 8b bb 0d 00 f7 d8 64 89 01 48
+RSP: 002b:00007fffe0155e78 EFLAGS: 00000202 ORIG_RAX: 00000000000000d1
+RAX: ffffffffffffffda RBX: 00007fffe0155ec0 RCX: 00007f7f0872f25d
+RDX: 00007fffe0155ef8 RSI: 0000000000000001 RDI: 00007f7f085ff000
+RBP: 0000000000000001 R08: 0000000000187c8d R09: 0000000000187c8d
+R10: 0000000000000000 R11: 0000000000000202 R12: 000055df91340320
+R13: 0000000000000001 R14: 0000000000000004 R15: 000055df91344300
+ </TASK>
+
+Allocated by task 395:
+
+Freed by task 395:
+
+The buggy address belongs to the object at ffff88810179c040
+ which belongs to the cache aio_kiocb of size 176
+The buggy address is located 144 bytes inside of
+ freed 176-byte region [ffff88810179c040, ffff88810179c0f0)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810179bf80: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+ ffff88810179c000: fc fc fc fc fc fc fc fc fa fb fb fb fb fb fb fb
+>ffff88810179c080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fc fc
+                                                 ^
+ ffff88810179c100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810179c180: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in __list_del include/linux/list.h:227 [inline]
+BUG: KASAN: slab-use-after-free in __list_del_entry include/linux/list.h:249 [inline]
+BUG: KASAN: slab-use-after-free in list_del include/linux/list.h:260 [inline]
+BUG: KASAN: slab-use-after-free in aio_remove_iocb fs/aio.c:1540 [inline]
+BUG: KASAN: slab-use-after-free in aio_complete_rw+0x5e3/0x670 fs/aio.c:1549
+Write of size 8 at addr ffff88810179c0d0 by task swapper/1/0
+
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G    B               7.2.0-rc1-gdc59e4fea9d8-dirty #1 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x7b/0xa0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xce/0x100 mm/kasan/report.c:595
+ __list_del include/linux/list.h:227 [inline]
+ __list_del_entry include/linux/list.h:249 [inline]
+ list_del include/linux/list.h:260 [inline]
+ aio_remove_iocb fs/aio.c:1540 [inline]
+ aio_complete_rw+0x5e3/0x670 fs/aio.c:1549
+ ep_aio_complete+0x492/0x600 drivers/usb/gadget/legacy/inode.c:558
+ transfer drivers/usb/gadget/udc/dummy_hcd.c:1527 [inline]
+ dummy_timer+0x1483/0x2d80 drivers/usb/gadget/udc/dummy_hcd.c:1989
+ __run_hrtimer kernel/time/hrtimer.c:2032 [inline]
+ __hrtimer_run_queues+0x27c/0x640 kernel/time/hrtimer.c:2096
+ hrtimer_run_softirq+0x1a9/0x3d0 kernel/time/hrtimer.c:2113
+ handle_softirqs+0x18e/0x590 kernel/softirq.c:622
+ __do_softirq kernel/softirq.c:656 [inline]
+ invoke_softirq kernel/softirq.c:496 [inline]
+ __irq_exit_rcu+0x60/0x130 kernel/softirq.c:735
+ instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
+ sysvec_apic_timer_interrupt+0x6b/0x80 arch/x86/kernel/apic/apic.c:1062
+
+
+TITLE: KASAN: slab-use-after-free Write in aio_complete_rw
+CORRUPTED: false ()
+SUPPRESSED: false
+MAINTAINERS (TO): [bcrl@kvack.org brauner@kernel.org linux-aio@kvack.org linux-fsdevel@vger.kernel.org viro@zeniv.linux.org.uk]
+MAINTAINERS (CC): [jack@suse.cz linux-kernel@vger.kernel.org]
+
+                                                 ^
+ ffff88810179c100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810179c180: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in __list_del include/linux/list.h:227 [inline]
+BUG: KASAN: slab-use-after-free in __list_del_entry include/linux/list.h:249 [inline]
+BUG: KASAN: slab-use-after-free in list_del include/linux/list.h:260 [inline]
+BUG: KASAN: slab-use-after-free in aio_remove_iocb fs/aio.c:1540 [inline]
+BUG: KASAN: slab-use-after-free in aio_complete_rw+0x5e3/0x670 fs/aio.c:1549
+Write of size 8 at addr ffff88810179c0d0 by task swapper/1/0
+
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G    B               7.2.0-rc1-gdc59e4fea9d8-dirty #1 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x7b/0xa0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xce/0x100 mm/kasan/report.c:595
+ __list_del include/linux/list.h:227 [inline]
+ __list_del_entry include/linux/list.h:249 [inline]
+ list_del include/linux/list.h:260 [inline]
+ aio_remove_iocb fs/aio.c:1540 [inline]
+ aio_complete_rw+0x5e3/0x670 fs/aio.c:1549
+ ep_aio_complete+0x492/0x600 drivers/usb/gadget/legacy/inode.c:558
+ transfer drivers/usb/gadget/udc/dummy_hcd.c:1527 [inline]
+ dummy_timer+0x1483/0x2d80 drivers/usb/gadget/udc/dummy_hcd.c:1989
+ __run_hrtimer kernel/time/hrtimer.c:2032 [inline]
+ __hrtimer_run_queues+0x27c/0x640 kernel/time/hrtimer.c:2096
+ hrtimer_run_softirq+0x1a9/0x3d0 kernel/time/hrtimer.c:2113
+ handle_softirqs+0x18e/0x590 kernel/softirq.c:622
+ __do_softirq kernel/softirq.c:656 [inline]
+ invoke_softirq kernel/softirq.c:496 [inline]
+ __irq_exit_rcu+0x60/0x130 kernel/softirq.c:735
+ instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
+ sysvec_apic_timer_interrupt+0x6b/0x80 arch/x86/kernel/apic/apic.c:1062
+
+

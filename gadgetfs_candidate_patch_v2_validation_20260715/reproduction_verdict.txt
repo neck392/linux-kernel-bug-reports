@@ -1,0 +1,80 @@
+SCOPE=Candidate v2 post-usb_ep_queue aio_kiocb UAF reproducibility
+DATE=2026-07-15
+
+BASE_COMMIT=dc59e4fea9d83f03bad6bddf3fa2e52491777482
+PATCH_DIFF_SHA256=602cc68ee56c48fd677636e0cc292db18b33330e7dba0e17a11007a3889a123e
+CANDIDATE_INLINE_BZIMAGE_SHA256=facf81a47d629942bb3207627a917f60a5d9450b3d3b0705a1b1ea772bb2b14b
+UNPATCHED_INLINE_BZIMAGE_SHA256=820660a0c864742707db9340a41c54eeea5ac69a8941c43fc6f7e9e8bdc9d98d
+
+PRIMARY_CONFIG:
+  CONFIG_KASAN=y
+  CONFIG_KASAN_GENERIC=y
+  CONFIG_KASAN_INLINE=y
+  CONFIG_DEBUG_INFO_DWARF5=y
+
+REPRODUCER:
+  results/gadgetfs_candidate_patch_v2_validation_20260714/repro_v2_postqueue_uaf_inline_stable.c
+  SHA256=827ec4e04cd492a06128cec81fcc32a90b933c1fb74aa810831e71076fb75079
+  DEFAULT_ROUNDS=2048
+  COMMAND_LINE_ARGUMENTS=none
+  DIAGNOSTIC_KPROBE=none
+  IO_CANCEL=none
+  REALTIME_SCHEDULING=none
+  CPU_AFFINITY=submitter CPU0, host USB thread CPU1
+  ORDERING=host USB request prearmed before each AIO PWRITE
+
+PRIMARY_SIGNATURE:
+  BUG: KASAN: slab-use-after-free in kiocb_set_cancel_fn
+  Write of size 8
+  object cache: aio_kiocb, size 176
+  uid: 1000
+  path: io_submit -> ep_aio -> kiocb_set_cancel_fn
+  symbolized locations:
+    fs/aio.c:658
+    drivers/usb/gadget/legacy/inode.c:620
+
+CANDIDATE_V2_INLINE_FRESH_BOOT_RESULTS:
+  pilot:       1 UAF / 1 boot
+  first batch: 10 UAF / 10 boots
+  second batch: 20 UAF / 20 boots
+  third batch: 19 UAF, 1 clean / 20 boots
+  TOTAL=50 UAF / 51 boots
+  REPRO_RATE=98.04 percent
+
+THE_SINGLE_CLEAN_CANDIDATE_RUN:
+  uid=1000 rounds=2048 submitted=2048 completed=2048 host_done=2048 host_errors=0
+  This was a genuine completed race miss, not a setup or execution failure.
+
+UNPATCHED_INLINE_CONTROL:
+  TOTAL=0 UAF / 10 boots
+  CLEAN=10 / 10 boots
+  Every boot completed all 2048 submissions and completions with host_errors=0.
+
+PRIMARY_SUMMARIES:
+  inline_stable_default2048_targetstop_pilot_1x_20260715_012914_summary.txt
+  inline_stable_default2048_targetstop_10_10x_20260715_013032_summary.txt
+  inline_stable_default2048_fresh20_20x_20260715_013541_summary.txt
+  inline_stable_default2048_fresh20b_20x_20260715_014806_summary.txt
+  unpatched_inline_stable2048_control_10x_20260715_020223_summary.txt
+
+REPRESENTATIVE_REPORTS:
+  raw_report_v2_inline_stable2048.txt
+  clean_report_v2_inline_stable2048.txt
+
+TEST_HARNESS_NOTE:
+  The target-stop harness watches the serial log and terminates QEMU two
+  seconds after the primary KASAN signature appears. It does not alter the
+  guest reproducer or the race before KASAN. It only prevents repeated
+  kasan_multi_shot reports after the issue has already reproduced.
+
+SYMBOLIZATION_NOTE:
+  syz-symbolize resolves the primary call trace and source lines, but marks
+  this extracted report CORRUPTED=true because the kernel emitted empty
+  allocation/free stack sections. The primary KASAN call trace itself is
+  complete in the raw report.
+
+VERDICT:
+  Under the tested KASAN_INLINE configuration, the no-argument reproducer
+  is highly reproducible (50/51, 98.04 percent) on candidate v2 and did not
+  reproduce in 10/10 identical unpatched INLINE controls. Do not describe
+  the result as 100 percent reproducible.

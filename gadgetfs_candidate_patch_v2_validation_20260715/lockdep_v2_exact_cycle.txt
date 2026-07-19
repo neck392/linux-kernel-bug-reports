@@ -1,0 +1,132 @@
+[[0;32m  OK  [0m] Finished [0;1;39msetvtrgb.service[0m - Set console scheme.
+[[0;32m  OK  [0m] Created slice [0;1;39msystem-getty.slice[0m - Slice /system/getty.
+[[0;32m  OK  [0m] Started [0;1;39mgetty@tty1.service[0m - Getty on tty1.
+[[0;32m  OK  [0m] Reached target [0;1;39mgetty.target[0m - Login Prompts.
+[[0;32m  OK  [0m] Started [0;1;39mrsyslog.service[0m - System Logging Service.
+[[0;32m  OK  [0m] Reached target [0;1;39mmulti-user.target[0m - Multi-User System.
+[[0;32m  OK  [0m] Reached target [0;1;39mgraphical.target[0m - Graphical Interface.
+         Starting [0;1;39msystemd-update-utmp-runle…[0m- Record Runlevel Change in UTMP...
+[[0;32m  OK  [0m] Finished [0;1;39msystemd-update-utmp-runle…e[0m - Record Runlevel Change in UTMP.
+
+Ubuntu 24.04 LTS ndr-qemu ttyS0
+
+ndr-qemu login: [   31.420610] 
+[   31.420998] ======================================================
+[   31.422100] WARNING: possible circular locking dependency detected
+[   31.423129] 7.2.0-rc1-gdc59e4fea9d8-dirty #1 Not tainted
+[   31.424033] ------------------------------------------------------
+[   31.425222] gfix/379 is trying to acquire lock:
+[   31.427577] ffffffffa0153758 (aio_lock){....}-{3:3}, at: ep_aio_cancel+0x1e/0x210
+[   31.430323] 
+[   31.430323] but task is already holding lock:
+[   31.432291] ffff888105698198 (&ctx->ctx_lock){....}-{3:3}, at: __x64_sys_io_cancel+0xca/0x330
+[   31.434385] 
+[   31.434385] which lock already depends on the new lock.
+[   31.434385] 
+[   31.435740] 
+[   31.435740] the existing dependency chain (in reverse order) is:
+[   31.437004] 
+[   31.437004] -> #2 (&ctx->ctx_lock){....}-{3:3}:
+[   31.437990]        lock_acquire+0x178/0x2f0
+[   31.438672]        _raw_spin_lock_irqsave+0x37/0x60
+[   31.439474]        aio_complete_rw+0x93/0x650
+[   31.440203]        ep_aio_complete+0x4d8/0x620
+[   31.440971]        dummy_disable+0x205/0x320
+[   31.441690]        usb_ep_disable+0x9c/0x2a0
+[   31.443864]        destroy_ep_files+0x273/0x380
+[   31.446719]        gadgetfs_unbind+0x11c/0x240
+[   31.448109]        gadget_unbind_driver+0x1ef/0x460
+[   31.449652]        device_remove+0xcb/0x170
+[   31.450909]        device_release_driver_internal+0x418/0x5f0
+[   31.452677]        driver_detach+0xcd/0x1a0
+[   31.453646]        bus_remove_driver+0x11d/0x1d0
+[   31.454398]        driver_unregister+0x76/0xb0
+[   31.455171]        usb_gadget_unregister_driver+0x49/0x70
+[   31.456042]        dev_release+0x11f/0x190
+[   31.456710]        __fput+0x39a/0xa60
+[   31.457431]        fput_close_sync+0xfa/0x1f0
+[   31.458140]        __x64_sys_close+0x87/0xf0
+[   31.458833]        do_syscall_64+0x10c/0x640
+[   31.460054]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.461419] 
+[   31.461419] -> #1 (&dev->lock#2){..-.}-{3:3}:
+[   31.462564]        lock_acquire+0x178/0x2f0
+[   31.463251]        _raw_spin_lock+0x2b/0x40
+[   31.463964]        ep_aio_complete+0x105/0x620
+[   31.465074]        dummy_disable+0x205/0x320
+[   31.465968]        usb_ep_disable+0x9c/0x2a0
+[   31.466683]        destroy_ep_files+0x273/0x380
+[   31.467421]        gadgetfs_unbind+0x11c/0x240
+[   31.468145]        gadget_unbind_driver+0x1ef/0x460
+[   31.468945]        device_remove+0xcb/0x170
+[   31.469622]        device_release_driver_internal+0x418/0x5f0
+[   31.470586]        driver_detach+0xcd/0x1a0
+[   31.471264]        bus_remove_driver+0x11d/0x1d0
+[   31.472013]        driver_unregister+0x76/0xb0
+[   31.472752]        usb_gadget_unregister_driver+0x49/0x70
+[   31.474036]        dev_release+0x11f/0x190
+[   31.475821]        __fput+0x39a/0xa60
+[   31.476950]        fput_close_sync+0xfa/0x1f0
+[   31.477933]        __x64_sys_close+0x87/0xf0
+[   31.478674]        do_syscall_64+0x10c/0x640
+[   31.479394]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.480283] 
+[   31.480283] -> #0 (aio_lock){....}-{3:3}:
+[   31.481169]        check_prev_add+0xeb/0xe80
+[   31.481895]        __lock_acquire+0x1375/0x1a60
+[   31.482669]        lock_acquire+0x178/0x2f0
+[   31.483370]        _raw_spin_lock_irq+0x33/0x50
+[   31.484127]        ep_aio_cancel+0x1e/0x210
+[   31.484811]        __x64_sys_io_cancel+0x198/0x330
+[   31.485606]        do_syscall_64+0x10c/0x640
+[   31.486366]        entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.487234] 
+[   31.487234] other info that might help us debug this:
+[   31.487234] 
+[   31.488707] Chain exists of:
+[   31.488707]   aio_lock --> &dev->lock#2 --> &ctx->ctx_lock
+[   31.488707] 
+[   31.492504]  Possible unsafe locking scenario:
+[   31.492504] 
+[   31.493421]        CPU0                    CPU1
+[   31.494335]        ----                    ----
+[   31.495076]   lock(&ctx->ctx_lock);
+[   31.495675]                                lock(&dev->lock#2);
+[   31.496558]                                lock(&ctx->ctx_lock);
+[   31.497474]   lock(aio_lock);
+[   31.497964] 
+[   31.497964]  *** DEADLOCK ***
+[   31.497964] 
+[   31.499492] 1 lock held by gfix/379:
+[   31.500387]  #0: ffff888105698198 (&ctx->ctx_lock){....}-{3:3}, at: __x64_sys_io_cancel+0xca/0x330
+[   31.501747] 
+[   31.501747] stack backtrace:
+[   31.502438] CPU: 2 UID: 1000 PID: 379 Comm: gfix Not tainted 7.2.0-rc1-gdc59e4fea9d8-dirty #1 PREEMPT(lazy) 
+[   31.502447] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   31.502452] Call Trace:
+[   31.502457]  <TASK>
+[   31.502461]  dump_stack_lvl+0x93/0xd0
+[   31.502470]  print_circular_bug+0x2ca/0x400
+[   31.502480]  check_noncircular+0x146/0x160
+[   31.502488]  ? __sched_setscheduler+0x5c9/0x2550
+[   31.502497]  check_prev_add+0xeb/0xe80
+[   31.502504]  __lock_acquire+0x1375/0x1a60
+[   31.502513]  lock_acquire+0x178/0x2f0
+[   31.502520]  ? ep_aio_cancel+0x1e/0x210
+[   31.502527]  ? do_raw_spin_lock+0x1e0/0x270
+[   31.502536]  _raw_spin_lock_irq+0x33/0x50
+[   31.502544]  ? ep_aio_cancel+0x1e/0x210
+[   31.502549]  ep_aio_cancel+0x1e/0x210
+[   31.502555]  __x64_sys_io_cancel+0x198/0x330
+[   31.502564]  do_syscall_64+0x10c/0x640
+[   31.502570]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   31.502578] RIP: 0033:0x7fd36297525d
+[   31.502584] Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 8b bb 0d 00 f7 d8 64 89 01 48
+[   31.502590] RSP: 002b:00007fd361e47dc8 EFLAGS: 00000246 ORIG_RAX: 00000000000000d2
+[   31.502596] RAX: ffffffffffffffda RBX: 00007fd361e47df0 RCX: 00007fd36297525d
+[   31.502600] RDX: 00007fd361e47df0 RSI: 0000559b74aaf100 RDI: 00007fd36264a000
+[   31.502604] RBP: 0000000000000000 R08: 00007fd362a660e8 R09: 00007fd361e486c0
+[   31.502607] R10: 0015d82eb1800000 R11: 0000000000000246 R12: 00007fd361e47de0
+[   31.502611] R13: 0000559b74aaf100 R14: 0000000000000010 R15: 00007ffe0d739150
+[   31.502617]  </TASK>
+[   31.539185] usb 1-1: USB disconnect, device number 2
