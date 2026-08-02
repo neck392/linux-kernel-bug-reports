@@ -1,0 +1,102 @@
+[   35.361281] WARNING: inconsistent lock state
+[   35.362558] 7.2.0-rc1 #2 Not tainted
+[   35.363590] --------------------------------
+[   35.364792] inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+[   35.366477] systemd-udevd/151 [HC0[0]:SC1[1]:HE0:SE0] takes:
+[   35.367703] ffff88810f1b8198 (&ctx->ctx_lock){+.?.}-{3:3}, at: free_ioctx_users+0x32/0x1e0
+[   35.369921] {SOFTIRQ-ON-W} state was registered at:
+[   35.370961]   lockdep_hardirqs_on_prepare+0xda/0x190
+[   35.372192]   trace_hardirqs_on+0x18/0x160
+[   35.373193]   ep_aio_cancel+0xe1/0x130
+[   35.374027]   __x64_sys_io_cancel+0x198/0x330
+[   35.375331]   do_syscall_64+0x10c/0x640
+[   35.376284]   entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   35.377364] irq event stamp: 214329
+[   35.378126] hardirqs last  enabled at (214328): [<ffffffffb4e4937f>] _raw_spin_unlock_irqrestore+0x3f/0x50
+[   35.379991] hardirqs last disabled at (214329): [<ffffffffb4e49062>] _raw_spin_lock_irq+0x42/0x50
+[   35.381702] softirqs last  enabled at (214112): [<ffffffffb4133545>] __alloc_skb+0x525/0x650
+[   35.383362] softirqs last disabled at (214199): [<ffffffffb19a33a1>] __irq_exit_rcu+0x111/0x1d0
+[   35.385168] 
+[   35.385168] other info that might help us debug this:
+[   35.386452]  Possible unsafe locking scenario:
+[   35.386452] 
+[   35.387900]        CPU0
+[   35.388446]        ----
+[   35.388974]   lock(&ctx->ctx_lock);
+[   35.389878]   <Interrupt>
+[   35.390461]     lock(&ctx->ctx_lock);
+[   35.391253] 
+[   35.391253]  *** DEADLOCK ***
+[   35.391253] 
+[   35.392465] 2 locks held by systemd-udevd/151:
+[   35.393406]  #0: ffffffffb6012560 (rcu_callback){....}-{0:0}, at: rcu_core+0x58b/0x1c50
+[   35.395068]  #1: ffffffffb6012680 (rcu_read_lock){....}-{1:3}, at: percpu_ref_put_many.constprop.0+0x20/0x210
+[   35.397165] 
+[   35.397165] stack backtrace:
+[   35.398114] CPU: 0 UID: 0 PID: 151 Comm: systemd-udevd Not tainted 7.2.0-rc1 #2 PREEMPT(full) 
+[   35.398123] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   35.398128] Call Trace:
+[   35.398132]  <IRQ>
+[   35.398136]  dump_stack_lvl+0x93/0xd0
+[   35.398145]  print_usage_bug.part.0+0x22c/0x2c0
+[   35.398155]  mark_lock+0x8ea/0xfa0
+[   35.398162]  ? _raw_spin_unlock_irqrestore+0x2a/0x50
+[   35.398172]  ? ___slab_alloc+0x7d/0x750
+[   35.398226]  ? __lock_acquire+0x42f/0x1a60
+[   35.398235]  __lock_acquire+0x7c1/0x1a60
+[   35.398243]  ? __bitmap_clear+0xb0/0x120
+[   35.398268]  lock_acquire+0x178/0x2f0
+[   35.398276]  ? free_ioctx_users+0x32/0x1e0
+[   35.398284]  ? lock_acquire+0x178/0x2f0
+[   35.398293]  _raw_spin_lock_irq+0x33/0x50
+[   35.398300]  ? free_ioctx_users+0x32/0x1e0
+[   35.398308]  free_ioctx_users+0x32/0x1e0
+[   35.398316]  percpu_ref_put_many.constprop.0+0x1e2/0x210
+[   35.398324]  ? rcu_core+0x624/0x1c50
+[   35.398331]  rcu_core+0x629/0x1c50
+[   35.398341]  ? __pfx_rcu_core+0x10/0x10
+[   35.398351]  handle_softirqs+0x1d0/0x880
+[   35.398360]  ? __pfx_handle_softirqs+0x10/0x10
+[   35.398366]  ? _raw_spin_unlock+0x1e/0x40
+[   35.398372]  ? __hrtimer_rearm_deferred+0x1ba/0x610
+[   35.398407]  __irq_exit_rcu+0x111/0x1d0
+[   35.398413]  irq_exit_rcu+0x9/0x20
+[   35.398418]  sysvec_apic_timer_interrupt+0x6b/0x80
+[   35.398429]  </IRQ>
+[   35.398431]  <TASK>
+[   35.398433]  asm_sysvec_apic_timer_interrupt+0x1a/0x20
+[   35.398441] RIP: 0010:_raw_spin_unlock_irqrestore+0x2a/0x50
+[   35.398451] Code: f3 0f 1e fa 55 48 89 f5 53 48 8b 74 24 10 48 89 fb 48 83 c7 18 e8 16 b0 cc fc 48 89 df e8 3e 03 cd fc f7 c5 00 02 00 00 75 10 <65> ff 0d bf 3c be 02 74 0f 5b 5d c3 cc cc cc cc e8 81 75 f5 fc fb
+[   35.398458] RSP: 0018:ffff888108607ba8 EFLAGS: 00000202
+[   35.398464] RAX: 00000000000344b5 RBX: ffff888100040f40 RCX: 0000000000000000
+[   35.398468] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffb4e4937f
+[   35.398472] RBP: 0000000000000246 R08: 0000000000000001 R09: 0000000000000000
+[   35.398476] R10: 0000000000000001 R11: 0000000000000000 R12: ffff888100043240
+[   35.398480] R13: 0000000000000246 R14: ffff888105232000 R15: ffff888100040f40
+[   35.398501]  ? _raw_spin_unlock_irqrestore+0x3f/0x50
+[   35.398510]  ? _raw_spin_unlock_irqrestore+0x3f/0x50
+[   35.398517]  get_from_partial_node+0x1d3/0x490
+[   35.398528]  ___slab_alloc+0x7d/0x750
+[   35.398537]  ? __pcs_replace_empty_main+0x230/0x5a0
+[   35.398548]  __kmalloc_noprof+0x4dc/0x680
+[   35.398557]  ? sk_prot_alloc+0x139/0x250
+[   35.398567]  sk_prot_alloc+0x139/0x250
+[   35.398575]  sk_alloc+0x32/0xac0
+[   35.398581]  __netlink_create+0x5e/0x280
+[   35.398590]  ? __wake_up+0x3f/0x60
+[   35.398625]  netlink_create+0x332/0x580
+[   35.398635]  __sock_create+0x296/0x680
+[   35.398645]  __sys_socket+0x13c/0x210
+[   35.398654]  ? __pfx___sys_socket+0x10/0x10
+[   35.398664]  __x64_sys_socket+0x72/0xb0
+[   35.398672]  do_syscall_64+0x10c/0x640
+[   35.398679]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   35.398685] RIP: 0033:0x7f6c24c2a2eb
+[   35.398692] Code: 48 8b 55 f8 64 48 2b 14 25 28 00 00 00 75 02 c9 c3 e8 b9 bb 00 00 66 0f 1f 84 00 00 00 00 00 f3 0f 1e fa b8 29 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d fd 6a 0d 00 f7 d8 64 89 01 48
+[   35.398697] RSP: 002b:00007ffc3d216d58 EFLAGS: 00000286 ORIG_RAX: 0000000000000029
+[   35.398703] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f6c24c2a2eb
+[   35.398707] RDX: 000000000000000f RSI: 0000000000080803 RDI: 0000000000000010
+[   35.398711] RBP: 00007ffc3d216f60 R08: 00000000ffffffff R09: 000055cd8f132e10
+[   35.398715] R10: 00007ffc3d216fa0 R11: 0000000000000286 R12: 00000000ffffffff
+[   35.398719] R13: 00007ffc3d216f98 R14: 000055cd8f16b3c0 R15: 000055cd8f132e10
+[   35.398726]  </TASK>
