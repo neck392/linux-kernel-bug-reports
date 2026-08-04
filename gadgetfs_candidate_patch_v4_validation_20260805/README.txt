@@ -85,18 +85,17 @@ reports/module_unload_lifetime_trace.txt
   unmount completed after ep_aio_cancel() returned; removal then succeeded.
 
 reports/lockdep_report_candidate_v4.txt
-  Exact LOCKDEP warning section from the candidate-v4 kernel. Calling
-  kiocb_set_cancel_fn() while ep_aio() holds dev->lock establishes the
-  dev->lock to ctx->ctx_lock direction. Synchronous dequeue giveback from
-  free_ioctx_users() supplies the reverse direction.
+  Exact LOCKDEP warning section from the candidate-v4 kernel. It records
+  kiocb_set_cancel_fn() running while ep_aio() holds dev->lock as one
+  source of the dev->lock to ctx->ctx_lock ordering. Synchronous dequeue
+  giveback from free_ioctx_users() supplies the reverse direction.
 
 reports/lockdep_report_unpatched_control.txt
   Exact warning section from the matched unpatched control using the same
   config, reproducer, workload, timing arguments, and fresh-boot setup. It
   reports recursive ctx_lock acquisition in the same synchronous-giveback
-  call chain. Therefore the underlying synchronous-giveback recursion is
-  not attributed to the candidate patch; the dev->lock to ctx->ctx_lock
-  dependency is the additional candidate-patch-specific edge.
+  call chain. Therefore the underlying synchronous-giveback re-entry is
+  not attributed to the candidate patch.
 
 Scope limits
 ------------
