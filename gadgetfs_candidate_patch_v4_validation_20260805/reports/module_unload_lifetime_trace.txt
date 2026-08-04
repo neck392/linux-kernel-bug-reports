@@ -1,0 +1,30 @@
+TARGET_WINDOW_REACHED=1
+DEVREL_RETURN_SEEN=0
+AT_WINDOW_REFCNT=2
+AT_WINDOW_GADGET_FDS=0
+BEFORE_RMMOD_REFCNT=2
+BEFORE_RMMOD_MODULE_PRESENT=1
+RMMOD_DURING_RC=1
+RMMOD_DURING_MSG=rmmod: ERROR: Module gadgetfs is in use
+UMOUNT_RC=0
+REPRO_RC=0
+RMMOD_AFTER_RC=0
+FINAL_MODULE_PRESENT=0
+FINAL_EPC_ENTRY=1
+FINAL_EPC_RETURN=1
+FINAL_TRACE=       repro_mod-444     [000] d..1.    45.812651: epc: (0xffffffffc0211154)
+FINAL_TRACE=       repro_mod-443     [002] .....    45.832980: gunbind_ret: (gadget_unbind_driver+0x1ef/0x460 <- 0xffffffffc0211d54)
+FINAL_TRACE=            bash-406     [001] ...1.    46.042259: tracing_mark_write: UMOUNT_START
+FINAL_TRACE=            bash-406     [003] ...1.    46.139450: tracing_mark_write: RMMOD_DURING_START
+FINAL_TRACE=            bash-406     [003] ...1.    46.176567: tracing_mark_write: RMMOD_DURING_END
+FINAL_TRACE=       repro_mod-444     [000] .N.1.    61.425473: epc_ret: (__x64_sys_io_cancel+0x198/0x330 <- 0xffffffffc0211154)
+FINAL_TRACE=       repro_mod-443     [002] .....    61.429817: devrel_ret: (__fput+0x39a/0xa60 <- 0xffffffffc0211bb4)
+FINAL_TRACE=            bash-406     [001] ...1.    61.477006: tracing_mark_write: UMOUNT_END
+usbfs node=/dev/bus/usb/001/002 fd=5 errno=0
+claim if0=0 errno=0
+after_drop uid=1000 euid=1000 hdelay=0 udelay=2000000
+submit=1 errno=0
+endpoint fd closed after submit
+host bulk ret=512 errno=0
+getevents=0 res=0 first=48 second=00
+cancel_done ok=0 err=1

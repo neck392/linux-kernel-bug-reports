@@ -1,0 +1,10 @@
+LABEL=v4_postqueue_guard_repeat
+COUNT_REQUESTED=50
+COUNT_COMPLETED=50
+BUILD=/home/neck392/all_ndr_lab/build/linux-7.2-rc1-gadgetfs-candidate-v4-unified
+SOURCE=/home/neck392/all_ndr_lab/results/gadgetfs_candidate_patch_v3_validation_20260802/repro_v3_ep_aio_postqueue_uaf_nosleep.c
+ARGS=
+CONFIG_SHA256=05207e7ddfaec0a4e80f2f6744299607cf6061ddc7a25f04a1df744ee859facb
+RUN_RC_COUNTS
+rc=0 50
+KERNEL_SIGNAL_LINES=0

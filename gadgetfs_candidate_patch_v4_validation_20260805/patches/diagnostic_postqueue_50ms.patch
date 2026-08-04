@@ -1,0 +1,12 @@
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -642,6 +642,9 @@ static ssize_t ep_aio(struct kiocb *iocb,
+ 	}
+ 	spin_unlock_irq(&epdata->dev->lock);
+ 
++	/* Diagnostic build only: widen completion before post-queue state check. */
++	mdelay(50);
++
+ 	spin_lock_irq(&aio_lock);
+ 	if (iocb->private != NULL && priv->req_state == AIO_SUBMITTING) {
+ 		priv->req_state = AIO_RUNNING;

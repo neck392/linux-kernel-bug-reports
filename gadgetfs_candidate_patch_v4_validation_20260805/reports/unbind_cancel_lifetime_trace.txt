@@ -1,0 +1,14 @@
+ repro_v4_cancel-427     [000] d..1.    37.788009: epc: (ep_aio_cancel+0x4/0x310) iocb=0xffff88804513e1c0 priv=0xffff88810be696c0 req=0xffff88810bd21d10 epdata=0xffff88810d6dac00
+ repro_v4_cancel-427     [000] .N.1.    37.788068: dequeue: (usb_ep_dequeue+0x4/0x220) ep=0xffff8881081d2518 req=0xffff88810bd21d10
+ repro_v4_cancel-427     [000] .N.1.    37.788091: dequeue_ret: (ep_aio_cancel+0x169/0x310 <- usb_ep_dequeue) ret=0x0
+           <...>-426     [002] .....    37.790041: devrelease: (dev_release+0x4/0x190) inode=0xffff8880125fa148 file=0xffff8881048a9240
+           <...>-426     [002] ..Zff    37.790136: udc_unregister: (usb_gadget_unregister_driver+0x4/0x70) driver=0xffffffffb5d53620
+           <...>-426     [002] .....    37.790209: gadget_unbind: (gadget_unbind_driver+0x4/0x460) dev=0xffff8881081d2cd8
+ repro_v4_cancel-426     [002] .....    37.793411: unbind: (gadgetfs_unbind+0x4/0x240) gadget=0xffff8881081d2c00
+ repro_v4_cancel-426     [002] .....    37.799078: unbind_ret: (gadget_unbind_driver+0x1ef/0x460 <- gadgetfs_unbind)
+ repro_v4_cancel-426     [002] .....    37.799286: gadget_unbind_ret: (device_remove+0xcb/0x170 <- gadget_unbind_driver)
+ repro_v4_cancel-426     [002] .....    37.799791: udc_unregister_ret: (dev_release+0x11f/0x190 <- usb_gadget_unregister_driver) ret=0x0
+ repro_v4_cancel-426     [002] .....    37.799841: devrelease_ret: (__fput+0x39a/0xa60 <- dev_release) ret=0x0
+ repro_v4_cancel-427     [000] .N.1.    37.838240: epfree: (usb_ep_free_request+0x4/0x210) ep=0xffff8881081d2518 req=0xffff88810bd21d10
+ repro_v4_cancel-427     [000] .N.1.    37.838339: putep: (put_ep+0x0/0x130) data=0xffff88810d6dac00
+ repro_v4_cancel-427     [000] .N.1.    37.838343: epc_ret: (__x64_sys_io_cancel+0x198/0x330 <- ep_aio_cancel) ret=0x0

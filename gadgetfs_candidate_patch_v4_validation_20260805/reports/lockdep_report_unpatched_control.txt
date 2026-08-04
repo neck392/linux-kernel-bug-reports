@@ -1,0 +1,83 @@
+ndr-qemu login: [   23.436567] 
+[   23.436838] ============================================
+[   23.437402] WARNING: possible recursive locking detected
+[   23.437970] 7.2.0-rc1 #2 Not tainted
+[   23.438359] --------------------------------------------
+[   23.438920] swapper/1/0 is trying to acquire lock:
+[   23.439426] ffff88810fa08198 (&ctx->ctx_lock){..-.}-{3:3}, at: aio_complete_rw+0x93/0x650
+[   23.440376] 
+[   23.440376] but task is already holding lock:
+[   23.441034] ffff88810fa08198 (&ctx->ctx_lock){..-.}-{3:3}, at: free_ioctx_users+0x32/0x1e0
+[   23.441991] 
+[   23.441991] other info that might help us debug this:
+[   23.442770]  Possible unsafe locking scenario:
+[   23.442770] 
+[   23.443506]        CPU0
+[   23.443822]        ----
+[   23.444140]   lock(&ctx->ctx_lock);
+[   23.445085]   lock(&ctx->ctx_lock);
+[   23.445907] 
+[   23.445907]  *** DEADLOCK ***
+[   23.445907] 
+[   23.446578]  May be due to missing lock nesting notation
+[   23.446578] 
+[   23.447396] 4 locks held by swapper/1/0:
+[   23.448044]  #0: ffffffffa4e12560 (rcu_callback){....}-{0:0}, at: rcu_core+0x58b/0x1c50
+[   23.449119]  #1: ffffffffa4e12680 (rcu_read_lock){....}-{1:3}, at: percpu_ref_put_many.constprop.0+0x20/0x210
+[   23.450313]  #2: ffff88810fa08198 (&ctx->ctx_lock){..-.}-{3:3}, at: free_ioctx_users+0x32/0x1e0
+[   23.451405]  #3: ffff88810dffe418 (&dev->lock#2){..-.}-{3:3}, at: ep_aio_complete+0xbc/0x5e0
+[   23.452468] 
+[   23.452468] stack backtrace:
+[   23.453082] CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Not tainted 7.2.0-rc1 #2 PREEMPT(full) 
+[   23.453089] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   23.453093] Call Trace:
+[   23.453096]  <IRQ>
+[   23.453098]  dump_stack_lvl+0x93/0xd0
+[   23.453116]  print_deadlock_bug+0x27b/0x3a0
+[   23.453123]  __lock_acquire+0x1243/0x1a60
+[   23.453129]  lock_acquire+0x178/0x2f0
+[   23.453135]  ? aio_complete_rw+0x93/0x650
+[   23.453141]  _raw_spin_lock_irqsave+0x37/0x60
+[   23.453148]  ? aio_complete_rw+0x93/0x650
+[   23.453153]  aio_complete_rw+0x93/0x650
+[   23.453158]  ? __pfx_aio_complete_rw+0x10/0x10
+[   23.453163]  ep_aio_complete+0x470/0x5e0
+[   23.453169]  dummy_dequeue+0x20b/0x2d0
+[   23.453175]  usb_ep_dequeue+0x68/0x220
+[   23.453180]  ep_aio_cancel+0xd5/0x130
+[   23.453183]  free_ioctx_users+0xa4/0x1e0
+[   23.453189]  percpu_ref_put_many.constprop.0+0x1e2/0x210
+[   23.453194]  ? rcu_core+0x624/0x1c50
+[   23.453199]  rcu_core+0x629/0x1c50
+[   23.453206]  ? __pfx_rcu_core+0x10/0x10
+[   23.453212]  handle_softirqs+0x1d0/0x880
+[   23.453218]  ? __pfx_handle_softirqs+0x10/0x10
+[   23.453224]  ? _raw_spin_unlock+0x1e/0x40
+[   23.453229]  ? __hrtimer_rearm_deferred+0x1ba/0x610
+[   23.453235]  __irq_exit_rcu+0x111/0x1d0
+[   23.453239]  irq_exit_rcu+0x9/0x20
+[   23.453243]  sysvec_apic_timer_interrupt+0x6b/0x80
+[   23.453250]  </IRQ>
+[   23.453251]  <TASK>
+[   23.453253]  asm_sysvec_apic_timer_interrupt+0x1a/0x20
+[   23.453258] RIP: 0010:pv_native_safe_halt+0xf/0x20
+[   23.453265] Code: aa e3 00 e9 13 c4 02 00 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa eb 07 0f 00 2d 33 73 23 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 66 90 90 90 90 90 90
+[   23.453271] RSP: 0018:ffff888100adfe70 EFLAGS: 00000206
+[   23.453275] RAX: 00000000000112ed RBX: ffff888100a95680 RCX: ffffffffa3c20e9f
+[   23.453278] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffa08b59c7
+[   23.453281] RBP: ffffed1020152ad0 R08: 0000000000000001 R09: ffffed10235d63ea
+[   23.453283] R10: ffff88811aeb1f53 R11: 0000000000000000 R12: 0000000000000000
+[   23.453286] R13: 0000000000000000 R14: 1ffff1102015bfd2 R15: dffffc0000000000
+[   23.453290]  ? ct_kernel_exit.constprop.0+0xbf/0xe0
+[   23.453296]  ? do_idle+0x387/0x580
+[   23.453302]  default_idle+0x9/0x10
+[   23.453306]  default_idle_call+0x6c/0xb0
+[   23.453309]  do_idle+0x387/0x580
+[   23.453314]  ? cpuhp_online_idle+0x88/0xa0
+[   23.453319]  ? __pfx_do_idle+0x10/0x10
+[   23.453324]  ? lockdep_hardirqs_on_prepare+0xda/0x190
+[   23.453330]  ? trace_hardirqs_on+0x18/0x160
+[   23.453335]  cpu_startup_entry+0x4f/0x60
+[   23.453340]  start_secondary+0x1bb/0x210
+[   23.453346]  common_startup_64+0x13e/0x158
+[   23.453354]  </TASK>

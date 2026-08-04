@@ -1,0 +1,12 @@
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -489,6 +489,9 @@ static int ep_aio_cancel(struct kiocb *iocb)
+ 
+ 	value = usb_ep_dequeue(ep, priv->req);
+ 
++	/* Diagnostic build only: hold the cancel cleanup window open. */
++	mdelay(15000);
++
+ 	spin_lock_irq(&aio_lock);
+ 	req_state = priv->req_state;
+ 	priv->cancel_state = AIO_UNLINK_DONE;
