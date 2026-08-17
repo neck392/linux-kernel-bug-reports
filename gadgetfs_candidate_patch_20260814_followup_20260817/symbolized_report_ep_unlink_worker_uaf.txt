@@ -1,0 +1,58 @@
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+systemd[1]: Starting systemd-random-seed.service - Load/Save OS Random Seed...
+systemd[1]: systemd-sysusers.service - Create System Users was skipped because no trigger condition checks were met.
+systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+systemd[1]: systemd-tpm2-setup.service - TPM2 SRK Setup was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x1d1/0x1f0 drivers/usb/gadget/legacy/inode.c:488
+Read of size 8 at addr ffff88810fc42e00 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Not tainted 7.2.0-rc1 #4 PREEMPT(full) 
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x1d1/0x1f0 drivers/usb/gadget/legacy/inode.c:488
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 368:
+
+Freed by task 75:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810fc42e00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 0 bytes inside of
+ freed 256-byte region [ffff88810fc42e00, ffff88810fc42f00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810fc42d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810fc42d80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810fc42e00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                   ^
+ ffff88810fc42e80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810fc42f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
