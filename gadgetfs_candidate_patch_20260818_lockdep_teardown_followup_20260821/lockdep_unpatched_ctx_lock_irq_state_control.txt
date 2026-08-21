@@ -1,0 +1,89 @@
+[   65.050019] ================================
+[   65.051288] WARNING: inconsistent lock state
+[   65.052513] 7.2.0-rc1 #2 Not tainted
+[   65.053479] --------------------------------
+[   65.054771] inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+[   65.057015] swapper/2/0 [HC0[0]:SC1[1]:HE0:SE0] takes:
+[   65.058938] ffff8881031a8198 (&ctx->ctx_lock){+.?.}-{3:3}, at: free_ioctx_users+0x32/0x1e0
+[   65.061425] {SOFTIRQ-ON-W} state was registered at:
+[   65.062691]   lockdep_hardirqs_on_prepare+0xda/0x190
+[   65.064050]   trace_hardirqs_on+0x18/0x160
+[   65.065169]   ep_aio_cancel+0xe1/0x130
+[   65.066266]   __x64_sys_io_cancel+0x198/0x330
+[   65.067714]   do_syscall_64+0x10c/0x640
+[   65.068911]   entry_SYSCALL_64_after_hwframe+0x77/0x7f
+[   65.070655] irq event stamp: 146289
+[   65.071656] hardirqs last  enabled at (146288): [<ffffffff9104937f>] _raw_spin_unlock_irqrestore+0x3f/0x50
+[   65.075505] hardirqs last disabled at (146289): [<ffffffff91049062>] _raw_spin_lock_irq+0x42/0x50
+[   65.078042] softirqs last  enabled at (146244): [<ffffffff8dba33a1>] __irq_exit_rcu+0x111/0x1d0
+[   65.080604] softirqs last disabled at (146269): [<ffffffff8dba33a1>] __irq_exit_rcu+0x111/0x1d0
+[   65.082933] 
+[   65.082933] other info that might help us debug this:
+[   65.084596]  Possible unsafe locking scenario:
+[   65.084596] 
+[   65.086204]        CPU0
+[   65.086893]        ----
+[   65.087564]   lock(&ctx->ctx_lock);
+[   65.088511]   <Interrupt>
+[   65.089290]     lock(&ctx->ctx_lock);
+[   65.090795] 
+[   65.090795]  *** DEADLOCK ***
+[   65.090795] 
+[   65.092815] 2 locks held by swapper/2/0:
+[   65.093852]  #0: ffffffff92212560 (rcu_callback){....}-{0:0}, at: rcu_core+0x58b/0x1c50
+[   65.095976]  #1: ffffffff92212680 (rcu_read_lock){....}-{1:3}, at: percpu_ref_put_many.constprop.0+0x20/0x210
+[   65.098958] 
+[   65.098958] stack backtrace:
+[   65.100151] CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Not tainted 7.2.0-rc1 #2 PREEMPT(full) 
+[   65.100162] Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+[   65.100168] Call Trace:
+[   65.100218]  <IRQ>
+[   65.100223]  dump_stack_lvl+0x93/0xd0
+[   65.100236]  print_usage_bug.part.0+0x22c/0x2c0
+[   65.100250]  mark_lock+0x8ea/0xfa0
+[   65.100259]  ? pv_native_safe_halt+0xf/0x20
+[   65.100271]  ? default_idle_call+0x6c/0xb0
+[   65.100279]  ? __lock_acquire+0x42f/0x1a60
+[   65.100290]  __lock_acquire+0x7c1/0x1a60
+[   65.100300]  ? __bitmap_clear+0xb0/0x120
+[   65.100313]  lock_acquire+0x178/0x2f0
+[   65.100323]  ? free_ioctx_users+0x32/0x1e0
+[   65.100335]  ? lock_acquire+0x178/0x2f0
+[   65.100346]  _raw_spin_lock_irq+0x33/0x50
+[   65.100361]  ? free_ioctx_users+0x32/0x1e0
+[   65.100370]  free_ioctx_users+0x32/0x1e0
+[   65.100381]  percpu_ref_put_many.constprop.0+0x1e2/0x210
+[   65.100390]  ? rcu_core+0x624/0x1c50
+[   65.100400]  rcu_core+0x629/0x1c50
+[   65.100412]  ? __pfx_rcu_core+0x10/0x10
+[   65.100425]  handle_softirqs+0x1d0/0x880
+[   65.100435]  ? __pfx_handle_softirqs+0x10/0x10
+[   65.100442]  ? _raw_spin_unlock+0x1e/0x40
+[   65.100451]  ? __hrtimer_rearm_deferred+0x1ba/0x610
+[   65.100462]  __irq_exit_rcu+0x111/0x1d0
+[   65.100469]  irq_exit_rcu+0x9/0x20
+[   65.100476]  sysvec_apic_timer_interrupt+0x6b/0x80
+[   65.100489]  </IRQ>
+[   65.100491]  <TASK>
+[   65.100494]  asm_sysvec_apic_timer_interrupt+0x1a/0x20
+[   65.100504] RIP: 0010:pv_native_safe_halt+0xf/0x20
+[   65.100516] Code: aa e3 00 e9 13 c4 02 00 0f 1f 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa eb 07 0f 00 2d 33 73 23 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 66 90 90 90 90 90 90
+[   65.100525] RSP: 0018:ffff888100aefe70 EFLAGS: 00000202
+[   65.100533] RAX: 0000000000023b5b RBX: ffff888100ae0040 RCX: ffffffff91020e9f
+[   65.100538] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffff8dcb59c7
+[   65.100543] RBP: ffffed102015c008 R08: 0000000000000001 R09: ffffed10235e63ea
+[   65.100548] R10: ffff88811af31f53 R11: 0000000000000000 R12: 0000000000000000
+[   65.100553] R13: 0000000000000000 R14: 1ffff1102015dfd2 R15: dffffc0000000000
+[   65.100560]  ? ct_kernel_exit.constprop.0+0xbf/0xe0
+[   65.100572]  ? do_idle+0x387/0x580
+[   65.100583]  default_idle+0x9/0x10
+[   65.100589]  default_idle_call+0x6c/0xb0
+[   65.100596]  do_idle+0x387/0x580
+[   65.100605]  ? cpuhp_online_idle+0x88/0xa0
+[   65.100615]  ? __pfx_do_idle+0x10/0x10
+[   65.100624]  ? lockdep_hardirqs_on_prepare+0xda/0x190
+[   65.100635]  ? trace_hardirqs_on+0x18/0x160
+[   65.100644]  cpu_startup_entry+0x4f/0x60
+[   65.100654]  start_secondary+0x1bb/0x210
+[   65.100664]  common_startup_64+0x13e/0x158
+[   65.100679]  </TASK>

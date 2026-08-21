@@ -1,0 +1,90 @@
+TITLE: general protection fault in usb_ep_dequeue
+CORRUPTED: false ()
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+systemd[1]: systemd-repart.service - Repartition Root Disk was skipped because no trigger condition checks were met.
+systemd[1]: Starting systemd-sysctl.service - Apply Kernel Variables...
+systemd[1]: systemd-sysusers.service - Create System Users was skipped because no trigger condition checks were met.
+systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+systemd[1]: systemd-tpm2-setup.service - TPM2 SRK Setup was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+Oops: general protection fault, probably for non-canonical address 0xdffffc0000000002: 0000 [#1] SMP KASAN NOPTI
+KASAN: null-ptr-deref in range [0x0000000000000010-0x0000000000000017]
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Not tainted 7.2.0-rc1 #1 PREEMPT(full) 
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker
+RIP: 0010:usb_ep_dequeue+0x2c/0x220 drivers/usb/gadget/udc/core.c:333
+Code: 1e fa 41 56 41 55 41 54 49 89 f4 55 53 48 89 fb e8 a9 72 f4 fd 48 8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 a5 01 00 00 48 b8 00 00 00 00 00 fc ff df 48 8b
+RSP: 0018:ffff888100a37be8 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffffa49d88d7
+RDX: 0000000000000002 RSI: ffff88810b39f290 RDI: 0000000000000010
+RBP: ffff888114925000 R08: 0000000000000000 R09: fffffbfff4e7c76a
+R10: ffffffffa73e3b57 R11: 0000000000002044 R12: ffff88810b39f290
+R13: ffff88810b39f290 R14: ffff888111e81600 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8881727f3000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f9ee49491a0 CR3: 00000001161eb002 CR4: 0000000000370ef0
+Call Trace:
+ <TASK>
+ ep_unlink_worker+0x8d/0x1b0 drivers/usb/gadget/legacy/inode.c:477
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:usb_ep_dequeue+0x2c/0x220 drivers/usb/gadget/udc/core.c:333
+Code: 1e fa 41 56 41 55 41 54 49 89 f4 55 53 48 89 fb e8 a9 72 f4 fd 48 8d 7b 10 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 a5 01 00 00 48 b8 00 00 00 00 00 fc ff df 48 8b
+RSP: 0018:ffff888100a37be8 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffffa49d88d7
+RDX: 0000000000000002 RSI: ffff88810b39f290 RDI: 0000000000000010
+RBP: ffff888114925000 R08: 0000000000000000 R09: fffffbfff4e7c76a
+R10: ffffffffa73e3b57 R11: 0000000000002044 R12: ffff88810b39f290
+R13: ffff88810b39f290 R14: ffff888111e81600 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8881727f3000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f9ee49491a0 CR3: 00000001161eb002 CR4: 0000000000370ef0
+----------------
+Code disassembly (best guess), 1 bytes skipped:
+   0:	fa                   	cli
+   1:	41 56                	push   %r14
+   3:	41 55                	push   %r13
+   5:	41 54                	push   %r12
+   7:	49 89 f4             	mov    %rsi,%r12
+   a:	55                   	push   %rbp
+   b:	53                   	push   %rbx
+   c:	48 89 fb             	mov    %rdi,%rbx
+   f:	e8 a9 72 f4 fd       	call   0xfdf472bd
+  14:	48 8d 7b 10          	lea    0x10(%rbx),%rdi
+  18:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+  1f:	fc ff df
+  22:	48 89 fa             	mov    %rdi,%rdx
+  25:	48 c1 ea 03          	shr    $0x3,%rdx
+* 29:	80 3c 02 00          	cmpb   $0x0,(%rdx,%rax,1) <-- trapping instruction
+  2d:	0f 85 a5 01 00 00    	jne    0x1d8
+  33:	48 b8 00 00 00 00 00 	movabs $0xdffffc0000000000,%rax
+  3a:	fc ff df
+  3d:	48                   	rex.W
+  3e:	8b                   	.byte 0x8b
+
+
+TITLE: kernel panic: Fatal exception
+CORRUPTED: true (report format is marked as corrupted)
+SUPPRESSED: false
+MAINTAINERS (TO): []
+MAINTAINERS (CC): []
+
+R10: ffffffffa73e3b57 R11: 0000000000002044 R12: ffff88810b39f290
+R13: ffff88810b39f290 R14: ffff888111e81600 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ffff8881727f3000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f9ee49491a0 CR3: 00000001161eb002 CR4: 0000000000370ef0
+Kernel panic - not syncing: Fatal exception
+Kernel Offset: 0x21200000 from 0xffffffff81000000 (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+Rebooting in 5 seconds..
+
+
