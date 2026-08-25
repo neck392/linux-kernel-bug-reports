@@ -1,0 +1,12 @@
+--- a/drivers/usb/gadget/legacy/inode.c
++++ b/drivers/usb/gadget/legacy/inode.c
+@@ -470,6 +470,9 @@ static void ep_unlink_worker(struct work_struct *work)
+ 	struct usb_request	*req;
+ 	enum aio_req_state	req_state;
+ 
++	pr_info("gadgetfs_diag: ep_unlink_worker entry delay start\n");
++	msleep(15000);
++	pr_info("gadgetfs_diag: ep_unlink_worker entry delay end\n");
+ 	priv = container_of(work, struct kiocb_priv, unlink_work);
+ 	req = priv->req;
+ 

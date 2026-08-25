@@ -1,0 +1,1400 @@
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+systemd[1]: systemd-tpm2-setup.service - TPM2 SRK Setup was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+systemd[1]: Finished systemd-network-generator.service - Generate network units from Kernel command line.
+systemd[1]: Reached target network-pre.target - Preparation for Network.
+systemd[1]: Finished systemd-random-seed.service - Load/Save OS Random Seed.
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810cb93108 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G           O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810cb93100
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810cb93100, ffff88810cb93200)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810cb93000: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810cb93080: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810cb93100: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810cb93180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810cb93200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103c3d308 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103c3d300
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103c3d300, ffff888103c3d400)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103c3d200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103c3d280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103c3d300: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103c3d380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c3d400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103c81c08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103c81c00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103c81c00, ffff888103c81d00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103c81b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103c81b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103c81c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103c81c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c81d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103519008 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103519000
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103519000, ffff888103519100)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103518f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103518f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103519000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103519080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103519100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff8881039a0a08 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff8881039a0a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff8881039a0a00, ffff8881039a0b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff8881039a0900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881039a0980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8881039a0a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8881039a0a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881039a0b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810c9ca808 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810c9ca800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810c9ca800, ffff88810c9ca900)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810c9ca700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810c9ca780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810c9ca800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+                      ^
+ ffff88810cb93180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810cb93200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103c3d308 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103c3d300
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103c3d300, ffff888103c3d400)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103c3d200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103c3d280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103c3d300: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103c3d380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c3d400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103c81c08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103c81c00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103c81c00, ffff888103c81d00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103c81b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103c81b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103c81c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103c81c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c81d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103519008 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103519000
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103519000, ffff888103519100)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103518f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103518f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103519000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103519080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103519100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff8881039a0a08 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff8881039a0a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff8881039a0a00, ffff8881039a0b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff8881039a0900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881039a0980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8881039a0a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8881039a0a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881039a0b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810c9ca808 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810c9ca800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810c9ca800, ffff88810c9ca900)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810c9ca700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810c9ca780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810c9ca800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+                      ^
+ ffff888103c3d380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c3d400: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103c81c08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103c81c00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103c81c00, ffff888103c81d00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103c81b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103c81b80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103c81c00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103c81c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c81d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103519008 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103519000
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103519000, ffff888103519100)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103518f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103518f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103519000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103519080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103519100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff8881039a0a08 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff8881039a0a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff8881039a0a00, ffff8881039a0b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff8881039a0900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881039a0980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8881039a0a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8881039a0a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881039a0b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810c9ca808 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810c9ca800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810c9ca800, ffff88810c9ca900)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810c9ca700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810c9ca780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810c9ca800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+                      ^
+ ffff888103c81c80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103c81d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff888103519008 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff888103519000
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff888103519000, ffff888103519100)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff888103518f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103518f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888103519000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff888103519080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103519100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff8881039a0a08 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff8881039a0a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff8881039a0a00, ffff8881039a0b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff8881039a0900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881039a0980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8881039a0a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8881039a0a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881039a0b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810c9ca808 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810c9ca800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810c9ca800, ffff88810c9ca900)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810c9ca700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810c9ca780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810c9ca800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+                      ^
+ ffff888103519080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888103519100: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff8881039a0a08 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff8881039a0a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff8881039a0a00, ffff8881039a0b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff8881039a0900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff8881039a0980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff8881039a0a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff8881039a0a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881039a0b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810c9ca808 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810c9ca800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810c9ca800, ffff88810c9ca900)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810c9ca700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810c9ca780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810c9ca800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+                      ^
+ ffff8881039a0a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881039a0b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810c9ca808 by task kworker/0:2/74
+
+CPU: 0 UID: 0 PID: 74 Comm: kworker/0:2 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810c9ca800
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810c9ca800, ffff88810c9ca900)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810c9ca700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810c9ca780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810c9ca800: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
+TITLE: KASAN: slab-use-after-free Read in ep_unlink_worker
+CORRUPTED: true (no frames in a stack trace)
+SUPPRESSED: false
+MAINTAINERS (TO): [gregkh@linuxfoundation.org linux-usb@vger.kernel.org]
+MAINTAINERS (CC): [linux-kernel@vger.kernel.org]
+
+                      ^
+ ffff88810c9ca880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810c9ca900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+==================================================================
+BUG: KASAN: slab-use-after-free in ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+Read of size 8 at addr ffff88810a7e3a08 by task kworker/0:1/10
+
+CPU: 0 UID: 0 PID: 10 Comm: kworker/0:1 Tainted: G    B      O        7.2.0-rc1 #2 PREEMPT(full) 
+Tainted: [B]=BAD_PAGE, [O]=OOT_MODULE
+Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+Workqueue: events ep_unlink_worker [gadgetfs]
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x93/0xd0 lib/dump_stack.c:120
+ print_address_description mm/kasan/report.c:378 [inline]
+ print_report+0xd0/0x630 mm/kasan/report.c:482
+ kasan_report+0xe4/0x120 mm/kasan/report.c:595
+ ep_unlink_worker+0x195/0x1a0 drivers/usb/gadget/legacy/inode.c:489 [gadgetfs]
+ process_one_work+0x878/0x1930 kernel/workqueue.c:3322
+ process_scheduled_works kernel/workqueue.c:3405 [inline]
+ worker_thread+0x5ad/0xd90 kernel/workqueue.c:3486
+ kthread+0x32f/0x440 kernel/kthread.c:436
+ ret_from_fork+0x60c/0x8a0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+Allocated by task 392:
+
+Freed by task 24:
+
+Last potentially related work creation:
+
+Second to last potentially related work creation:
+
+The buggy address belongs to the object at ffff88810a7e3a00
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 8 bytes inside of
+ freed 256-byte region [ffff88810a7e3a00, ffff88810a7e3b00)
+
+The buggy address belongs to the physical page:
+
+Memory state around the buggy address:
+ ffff88810a7e3900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88810a7e3980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88810a7e3a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+ ffff88810a7e3a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88810a7e3b00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+
